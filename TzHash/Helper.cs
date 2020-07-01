@@ -25,6 +25,11 @@ namespace TzHash
             return i;
         }
 
+        public static int GetNonZeroLength(this ulong value)
+        {
+            return 64 - GetLeadingZeros(value);
+        }
+
         public static string ToHexString(this byte[] value)
         {
             StringBuilder sb = new StringBuilder();

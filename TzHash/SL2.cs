@@ -108,7 +108,7 @@ namespace TzHash
             return r;
         }
 
-        // Inv returns inverse of a in SL2(GF(2^127))
+        // Inv() returns inverse of a in SL2(GF(2^127))
         public static SL2 Inv(SL2 a)
         {
             GF127[] t = new GF127[2];

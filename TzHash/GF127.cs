@@ -93,21 +93,34 @@ namespace TzHash
         }
 
         // Multiply
-        public static GF127 operator *(GF127 a, GF127 b)
+        public static GF127 operator *(GF127 a, GF127 b) // 2^63 * 2,  10
         {
             GF127 r = new GF127();
             GF127 c = a;
-            for (int i = 0; i < 64; i++)
+
+            if (b[1] == 0)
             {
-                if ((b[0] & ((ulong)1 << i)) != 0)
-                    r += c;
-                c = Mul10(c);
+                for (int i = 0; i < b[0].GetNonZeroLength(); i++)
+                {
+                    if ((b[0] & ((ulong)1 << i)) != 0)
+                        r += c;
+                    c = Mul10(c);                       // c = c * 2
+                }
             }
-            for (int i = 0; i < 63; i++)
+            else
             {
-                if ((b[1] & ((ulong)1 << i)) != 0)
-                    r += c;
-                c = Mul10(c);
+                for (int i = 0; i < 64; i++)
+                {
+                    if ((b[0] & ((ulong)1 << i)) != 0)
+                        r += c;
+                    c = Mul10(c);                       // c = c * 2
+                }
+                for (int i = 0; i < b[1].GetNonZeroLength(); i++)
+                {
+                    if ((b[1] & ((ulong)1 << i)) != 0)
+                        r += c;
+                    c = Mul10(c);
+                }
             }
             return r;
         }

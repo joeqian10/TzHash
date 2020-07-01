@@ -127,10 +127,28 @@ namespace TzHash.UnitTests
         }
 
         [TestMethod]
+        public void TestCorrectness()
+        {
+            using RandomNumberGenerator rng = RandomNumberGenerator.Create();
+            var b = new byte[1000];
+            rng.GetBytes(b);
+
+            TzHash tz = new TzHash();
+            var h = tz.ComputeHash(b);
+            var s = h.ToHexString();
+
+            tz.Reset();
+            tz.HashDataParallel(b);
+            var h2 = tz.Hash;
+            var s2 = h2.ToHexString();
+            Assert.AreEqual(s, s2);
+        }
+
+        [TestMethod]
         public void TestSpeed1()
         {
             using RandomNumberGenerator rng = RandomNumberGenerator.Create();
-            var b = new byte[100000];
+            var b = new byte[10000000];
             rng.GetBytes(b);
 
             TzHash tz = new TzHash();

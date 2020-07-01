@@ -10,7 +10,6 @@ namespace TzHash
     {
         private GF127[] x;
         public override int HashSize => 64;
-        public override int InputBlockSize => 128;
 
         public override byte[] Hash => ToByteArray();
 
@@ -74,8 +73,9 @@ namespace TzHash
         public int HashDataParallel(byte[] data)
         {
             var n = data.Length;
-            SL2[] t = new SL2[n * 8];
-            for (int i = 0; i < n; i++)
+            SL2[] t = new SL2[n * 8]; // caution out of memory exception
+
+            Parallel.For(0, n, (i) =>
             {
                 for (int j = 0; j < 8; j++)
                 {
@@ -84,8 +84,14 @@ namespace TzHash
                     else
                         t[i * 8 + j] = SL2.B;
                 }
-            }
-            var r = MulParallel(t);
+            });
+
+            SL2[] r = t;
+            do
+            {
+                r = MulParallel(r);
+            } while (r.Length > 1);
+
             var r0 = r[0];
             x[0] = r0[0][0];
             x[1] = r0[0][1];
@@ -97,40 +103,23 @@ namespace TzHash
         private SL2[] MulParallel(SL2[] data)
         {
             var len = data.Length;
-            if (len == 1) return data;
+            //if (len == 1) return data;
 
-            Sample[] x;
-            if (len % 2 == 0)
+            SL2[] t = new SL2[len/2];
+
+            if (len % 2 != 0)
             {
-                x = new Sample[len / 2];
-                for (int i = 0; i < len/2; i++)
-                {
-                    x[i] = new Sample();
-                    x[i].Left = data[i * 2];
-                    x[i].Right = data[i * 2 + 1];
-                }
-            }
-            else
-            {
-                x = new Sample[len / 2 + 1]; // 3 / 2 + 1 = 2
-                for (int i = 0; i < len/2; i++)
-                {
-                    x[i] = new Sample();
-                    x[i].Left = data[i * 2]; // 
-                    x[i].Right = data[i*2 + 1];
-                }
-                x[len / 2].Left = data[len - 1];
-                x[len / 2].Right = new SL2();    // add an extra SL2
+                data = data.Append(new SL2()).ToArray();
+                t = t.Append(new SL2()).ToArray();
             }
 
-            Parallel.ForEach(x,
-                            (sample) =>
-                            {
-                                sample.Result = sample.Left * sample.Right;
-                            }
-                        );
-            var r = x.Select(p => p.Result).ToArray();
-            return MulParallel(r);
+            Parallel.For(0, t.Length, (i) =>
+            {
+                t[i] = data[i*2] * data[i*2+1];
+            });
+
+            return t;
+            //return MulParallel(t);
         }
 
         // MulBitRight() multiply A (if the bit is 0) or B (if the bit is 1) on the right side 
@@ -203,12 +192,5 @@ namespace TzHash
             var r = SL2.Inv(t1) * t2;
             return r.ToByteArray();
         }
-    }
-
-    internal class Sample
-    {
-        public SL2 Left { get; set; }
-        public SL2 Right { get; set; }
-        public SL2 Result { get; set; }
     }
 }
