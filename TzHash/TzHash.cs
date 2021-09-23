@@ -69,6 +69,65 @@ namespace TzHash
             return n;
         }
 
+        public int HashWith10Threads(byte[] data)
+        {
+            if (data == null) return 0;
+            
+            int threadCount = 10;
+            var n = data.Length;
+            var size = n / threadCount; // the number of bytes each thread needs to handle
+            var remaining = n % threadCount; 
+
+            var tmp = new byte[threadCount][];
+            int j = 0;
+            for (j = 0; j < threadCount-1; j++)
+            {
+                tmp[j] = data[(j * size)..(j * size + size)];
+            }
+            // append remaining bytes to the last thread
+            tmp[j] = data[(j * size)..];
+
+            var hashes = new GF127[threadCount][];
+            for (int i = 0; i < hashes.Length; i++)
+            {
+                hashes[i] = new GF127[] { new GF127(1, 0), new GF127(0, 0), new GF127(0, 0), new GF127(1, 0) };
+            }
+            var tasks = new Task[threadCount];
+            for (int index = 0; index < threadCount; index++)
+            {
+                var idx = index;
+                var task = new Task(() =>
+                {
+                    var subData = tmp[idx];
+                    for (int i = 0; i < subData.Length; i++)
+                    {
+                        MulBitRight(ref hashes[idx][0], ref hashes[idx][1], ref hashes[idx][2], ref hashes[idx][3], (subData[i] & 0x80) != 0);
+                        MulBitRight(ref hashes[idx][0], ref hashes[idx][1], ref hashes[idx][2], ref hashes[idx][3], (subData[i] & 0x40) != 0);
+                        MulBitRight(ref hashes[idx][0], ref hashes[idx][1], ref hashes[idx][2], ref hashes[idx][3], (subData[i] & 0x20) != 0);
+                        MulBitRight(ref hashes[idx][0], ref hashes[idx][1], ref hashes[idx][2], ref hashes[idx][3], (subData[i] & 0x10) != 0);
+                        MulBitRight(ref hashes[idx][0], ref hashes[idx][1], ref hashes[idx][2], ref hashes[idx][3], (subData[i] & 0x08) != 0);
+                        MulBitRight(ref hashes[idx][0], ref hashes[idx][1], ref hashes[idx][2], ref hashes[idx][3], (subData[i] & 0x04) != 0);
+                        MulBitRight(ref hashes[idx][0], ref hashes[idx][1], ref hashes[idx][2], ref hashes[idx][3], (subData[i] & 0x02) != 0);
+                        MulBitRight(ref hashes[idx][0], ref hashes[idx][1], ref hashes[idx][2], ref hashes[idx][3], (subData[i] & 0x01) != 0);
+                    }
+                });
+                tasks[idx] = task;
+                task.Start();
+            }
+            Task.WaitAll(tasks);
+
+            // convert to SL2[]
+            var final = new SL2[threadCount];
+            for (int i = 0; i < threadCount; i++)
+            {
+                final[i] = new SL2(hashes[i][0], hashes[i][1], hashes[i][2], hashes[i][3]);
+            }
+
+            var hash = Concat(final);
+            return n;
+        }
+
+
         // do not use this method, it's for fun, still in development
         public int HashDataParallel(byte[] data)
         {
@@ -156,13 +215,23 @@ namespace TzHash
             //    r.MulA();
         }
 
-        // Concat() performs combining of hashes based on homomorphic characteristic.
+        // Concat() performs combining of hashes based on homomorphic property.
         public static byte[] Concat(byte[][] hs)
         {
             var r = SL2.ID;
             for (int i = 0; i < hs.Length; i++)
             {
                 r *= new SL2().FromByteArray(hs[i]);
+            }
+            return r.ToByteArray();
+        }
+
+        public static byte[] Concat(SL2[] hs)
+        {
+            var r = SL2.ID;
+            for (int i = 0; i < hs.Length; i++)
+            {
+                r *= hs[i];
             }
             return r.ToByteArray();
         }

@@ -8,7 +8,7 @@ namespace TzHash.UnitTests
     [TestClass]
     public class UT_TzHash
     {
-        private readonly Tuple<byte[], string>[] HashTestCases = new [] 
+        private readonly Tuple<byte[], string>[] HashTestCases = new[]
         {
             new Tuple<byte[], string>(
                 new byte[]{},
@@ -24,7 +24,7 @@ namespace TzHash.UnitTests
                 ),
         };
 
-        private readonly Tuple<string, string[]>[] ConcatTestCases = new []
+        private readonly Tuple<string, string[]>[] ConcatTestCases = new[]
         {
             new Tuple<string, string[]>(
                 "7f5c9280352a8debea738a74abd4ec787f2c5e556800525692f651087442f9883bb97a2c1bc72d12ba26e3df8dc0f670564292ebc984976a8e353ff69a5fb3cb",
@@ -42,7 +42,7 @@ namespace TzHash.UnitTests
                 })
         };
 
-        private readonly Tuple<string, string, string>[] SubstractTestCases = new []
+        private readonly Tuple<string, string, string>[] SubstractTestCases = new[]
         {
             new Tuple<string, string, string>(
                 "4275945919296224acd268456be23b8b2df931787a46716477e32cd991e98074029d4f03a0fedc09125ee4640d228d7d40d430659a0b2b70e9cd4d4c5361865a",
@@ -65,6 +65,28 @@ namespace TzHash.UnitTests
                 var hash = tz.ComputeHash(item.Item1);
                 Assert.AreEqual(item.Item2, hash.ToHexString());
             }
+        }
+
+        [TestMethod]
+        public void TestBenchmark() // cost 9 seconds
+        {
+            var temp = new byte[30000000];
+
+            TzHash tz = new TzHash();
+            var hash = tz.ComputeHash(temp);
+
+            Assert.AreEqual(0, 0);
+        }
+
+        [TestMethod]
+        public void TestHashWith10Threads() // cost 5 seconds
+        {
+            var temp = new byte[3000000];
+
+            TzHash tz = new TzHash();
+            var n = tz.HashWith10Threads(temp);
+
+            Assert.AreEqual(0, 0);
         }
 
         [TestMethod]
