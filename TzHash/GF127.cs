@@ -81,7 +81,7 @@ namespace TzHash
         }
 
         // Add
-        public static GF127 operator +(GF127 a, GF127 b)
+        public static GF127 operator +(GF127 a, GF127 b) // no need for the irreducible polynomial
         {
             return new GF127(a[0] ^ b[0], a[1] ^ b[1]);
         }
@@ -93,7 +93,7 @@ namespace TzHash
         }
 
         // Multiply
-        public static GF127 operator *(GF127 a, GF127 b) // 2^63 * 2,  10
+        public static GF127 operator *(GF127 a, GF127 b) // 2^63 * 2, needs to mod the irreducible polynomial
         {
             GF127 r = new GF127();
             GF127 c = a;
