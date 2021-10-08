@@ -1,4 +1,4 @@
-#pragma once
+#include "string.h"
 
 #include "gf2p127.c"
 
@@ -181,14 +181,14 @@ void sl2_unit(sl2_t a) {
     a[1][1] = gf2p127_from_int(1);
 }
 
-static inline
-char* sl2_hex(char* buf, sl2_t a) {
-    gf2p127_hex(&buf[0], a[0][0]);
-    gf2p127_hex(&buf[32], a[0][1]);
-    gf2p127_hex(&buf[64], a[1][0]);
-    gf2p127_hex(&buf[96], a[1][1]);
-    return buf;
-}
+//static inline
+//char* sl2_hex(char* buf, sl2_t a) {
+//    gf2p127_hex(&buf[0], a[0][0]);
+//    gf2p127_hex(&buf[32], a[0][1]);
+//    gf2p127_hex(&buf[64], a[1][0]);
+//    gf2p127_hex(&buf[96], a[1][1]);
+//    return buf;
+//}
 
 static inline
 unsigned long long* sl2_raw(sl2_t a) {
@@ -199,6 +199,17 @@ unsigned long long* sl2_raw(sl2_t a) {
         _mm_extract_epi64(a[1][1], 1), _mm_extract_epi64(a[1][1], 0),
     };
     return r;
+}
+
+static inline
+void sl2_raw_linux(sl2_t a, unsigned long long* t) {
+    unsigned long long r[8] = {
+        _mm_extract_epi64(a[0][0], 1), _mm_extract_epi64(a[0][0], 0),
+        _mm_extract_epi64(a[0][1], 1), _mm_extract_epi64(a[0][1], 0),
+        _mm_extract_epi64(a[1][0], 1), _mm_extract_epi64(a[1][0], 0),
+        _mm_extract_epi64(a[1][1], 1), _mm_extract_epi64(a[1][1], 0),
+    };
+    memcpy(t, r, sizeof(unsigned long long) * 8);
 }
 
 static const unsigned char b64[64] =
@@ -213,39 +224,39 @@ static const unsigned char unb64[256] = {
   ['-'] = 62,['_'] = 63
 };
 
-static inline
-void sl2_serialize(sl2_t m, unsigned char buf[86]) {
-    int i, j;
-    unsigned char a, b, c, * data = (unsigned char*)m;
-
-    for (i = j = 0; i <= 64 - 3; i += 3, j += 4) {
-        a = data[i + 0];
-        b = data[i + 1];
-        c = data[i + 2];
-        buf[j + 0] = b64[a >> 2];
-        buf[j + 1] = b64[((0x03 & a) << 4) + (b >> 4)];
-        buf[j + 2] = b64[((0x0f & b) << 2) + (c >> 6)];
-        buf[j + 3] = b64[0x3f & c];
-    }
-
-    buf[84] = b64[data[i] >> 2];
-    buf[85] = b64[(0x3 & data[i]) << 4];
-}
-
-static inline
-void sl2_unserialize(sl2_t m, unsigned char buf[86]) {
-    int i, j;
-    unsigned char a, b, c, d, * data = (unsigned char*)m;
-
-    for (i = j = 0; i <= 86 - 4; i += 4, j += 3) {
-        a = unb64[buf[i + 0]];
-        b = unb64[buf[i + 1]];
-        c = unb64[buf[i + 2]];
-        d = unb64[buf[i + 3]];
-        data[j + 0] = (a << 2) | (b >> 4);
-        data[j + 1] = (b << 4) | (c >> 2);
-        data[j + 2] = (c << 6) | (d);
-    }
-
-    data[63] = (unb64[buf[i]] << 2) | (unb64[buf[i + 1]] >> 4);
-}
+//static inline
+//void sl2_serialize(sl2_t m, unsigned char buf[86]) {
+//    int i, j;
+//    unsigned char a, b, c, * data = (unsigned char*)m;
+//
+//    for (i = j = 0; i <= 64 - 3; i += 3, j += 4) {
+//        a = data[i + 0];
+//        b = data[i + 1];
+//        c = data[i + 2];
+//        buf[j + 0] = b64[a >> 2];
+//        buf[j + 1] = b64[((0x03 & a) << 4) + (b >> 4)];
+//        buf[j + 2] = b64[((0x0f & b) << 2) + (c >> 6)];
+//        buf[j + 3] = b64[0x3f & c];
+//    }
+//
+//    buf[84] = b64[data[i] >> 2];
+//    buf[85] = b64[(0x3 & data[i]) << 4];
+//}
+//
+//static inline
+//void sl2_unserialize(sl2_t m, unsigned char buf[86]) {
+//    int i, j;
+//    unsigned char a, b, c, d, * data = (unsigned char*)m;
+//
+//    for (i = j = 0; i <= 86 - 4; i += 4, j += 3) {
+//        a = unb64[buf[i + 0]];
+//        b = unb64[buf[i + 1]];
+//        c = unb64[buf[i + 2]];
+//        d = unb64[buf[i + 3]];
+//        data[j + 0] = (a << 2) | (b >> 4);
+//        data[j + 1] = (b << 4) | (c >> 2);
+//        data[j + 2] = (c << 6) | (d);
+//    }
+//
+//    data[63] = (unb64[buf[i]] << 2) | (unb64[buf[i + 1]] >> 4);
+//}

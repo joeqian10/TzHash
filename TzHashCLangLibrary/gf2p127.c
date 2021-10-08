@@ -1,9 +1,8 @@
-#pragma once
-
 #include <stdio.h>
 #include <stdint.h>
 #include <immintrin.h>
 #include <smmintrin.h>
+#include <tmmintrin.h>
 #include <wmmintrin.h>
 
 typedef __m128i gf2p127_t;
@@ -110,14 +109,14 @@ gf2p127_t gf2p127_mul(const gf2p127_t a, const gf2p127_t b) {
     return lo;
 }
 
-static inline
-char* gf2p127_hex(char* str, const gf2p127_t m) {
-    sprintf_s(str, 256, "%.16llx%.16llx", _mm_extract_epi64(m, 1), _mm_extract_epi64(m, 0));
-    return str;
-}
+//static inline
+//char* gf2p127_hex(char* str, const gf2p127_t m) {
+//    sprintf_s(str, 256, "%.16llx%.16llx", _mm_extract_epi64(m, 1), _mm_extract_epi64(m, 0));
+//    return str;
+//}
 
-static inline
-unsigned long long* gf2p127_raw(const gf2p127_t m) {
-    unsigned long long r[2] = { _mm_extract_epi64(m, 1), _mm_extract_epi64(m, 0) };
-    return r;
-}
+//static inline
+//unsigned long long* gf2p127_raw(const gf2p127_t m) {
+//    unsigned long long r[2] = { _mm_extract_epi64(m, 1), _mm_extract_epi64(m, 0) };
+//    return r;
+//}

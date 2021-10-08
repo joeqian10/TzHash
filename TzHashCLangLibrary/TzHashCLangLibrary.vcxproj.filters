@@ -13,16 +13,22 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\src">
+      <UniqueIdentifier>{b3fd72c1-2b00-43d3-9353-0f1e12740105}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gf2p127.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="sl2.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\src</Filter>
     </ClCompile>
     <ClCompile Include="hash.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\src</Filter>
     </ClCompile>
+    <ClCompile Include="sl2.c">
+      <Filter>Source Files\src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="README.md" />
   </ItemGroup>
 </Project>
