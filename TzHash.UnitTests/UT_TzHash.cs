@@ -74,9 +74,11 @@ namespace TzHash.UnitTests
             var temp = new byte[n];
 
             TzHash tz = new TzHash();
+            var start = (DateTime.Now.Minute * 60 + DateTime.Now.Second) * 1000 + DateTime.Now.Millisecond;
             var hash = tz.ComputeHash(temp);
-
+            var end = (DateTime.Now.Minute * 60 + DateTime.Now.Second) * 1000 + DateTime.Now.Millisecond;
             Assert.AreEqual("601b0a3b8a51c34e3028245e88112aea0fd7571f9de28d6a81f31e58eec1e3310fd7571f9de28d6a81f31e58eec1e3317fb5a404b194d99b33ce18ef5592ec88", hash.ToHexString());
+            var cha = end - start;
         }
 
         [TestMethod]
